@@ -3,12 +3,17 @@
 #include <string>
 #include <random>
 #include <ctime>
+#include <utility>
+#include <thread>
+#include <map>
+
 
 using namespace std;
 
 struct nodo {
     string id;
-    vector<nodo*> lista;
+    vector<pair<nodo*,float>> listaConexos;
+    map <string,bool> recorrido;
     nodo() {
         id = "";
     }
@@ -20,6 +25,31 @@ struct nodo {
     }
 
 };
+
+void makeConnection(vector<vector<nodo*>>& matriz,int inicio, int fin){
+    for(int i = inicio; i<fin;i++){
+        for(int j=0;j<20;j++){
+            if(j<19)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j+1],10.0));
+            if(j>0)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j-1],10.0));
+            if(i>0)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j],10.0));
+            if(i<19)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j],10.0));
+            if(j<19 && i< 19)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j+1],14.14));
+            if(i>0 && j<19)
+                    matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j+1],14.14));
+            if(j>0 && i> 0)
+                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j-1],14.14));
+            if(j>0 && i<19)
+                    matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j-1],14.14));
+
+
+        }
+    }
+}
 
 vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo, int cantidad) {
 
@@ -45,8 +75,8 @@ vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo, int cantidad)
 
 void borrar(vector<vector<nodo*>> &mt) {
     vector<int> num;
-    int porcentaje, profe;
-    cin >> profe;
+    int porcentaje, profe =50;
+   // cin >> profe;
     porcentaje = profe * 4;
     num = generarNumerosAleatoriosUnicos(0, 399, porcentaje);
     
@@ -91,6 +121,15 @@ int main(){
         }
         cout << endl;
     }
+    //makeConnection(mt,0,20);
+    thread T1(makeConnection, ref(mt), 0, 5);
+    thread T2(makeConnection, ref(mt), 5, 10);
+    thread T3(makeConnection, ref(mt), 10, 15);
+    thread T4(makeConnection, ref(mt), 15, 20);
+    T1.join();
+    T2.join();
+    T3.join();
+    T4.join();
     borrar(mt);
     for (int i = 0; i < 20; i++) {
         for (int k = 0; k < 20; k++) {
@@ -98,5 +137,6 @@ int main(){
         }
         cout << endl;
     }
+    return 0;
 }
 
