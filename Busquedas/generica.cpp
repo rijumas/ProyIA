@@ -25,6 +25,7 @@ public:
     map<T,Nodo<T>*> nodos;
     void addNodo(Nodo<T> *);
     void addArista(Nodo<T> *, Nodo<T> *);
+    void Arbol(Nodo<T> *);
 };
 
 template<class T>
@@ -43,6 +44,8 @@ void Grafo<T>::addArista(Nodo<T> * N1, Nodo<T> * N2){
     N1->conexos.push_back(N2);
     N2->conexos.push_back(N1);
 }
+
+
 
 int main(){
     Grafo<char> G;
