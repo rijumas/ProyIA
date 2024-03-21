@@ -1,142 +1,176 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <random>
+#include <algorithm>
 #include <ctime>
-#include <utility>
+#include <fstream>
+#include <iostream>
+#include <random>
+#include <stack>
+#include <string>
 #include <thread>
-#include <map>
-
+#include <queue>
+#include <utility>
+#include <vector>
 
 using namespace std;
 
 struct nodo {
-    string id;
-    vector<pair<nodo*,float>> listaConexos;
-    map <string,bool> recorrido;
-    nodo() {
-        id = "";
-    }
-    nodo(string id_) {
-        id = id_;
-    }
-    void delet() {
-        id = "";
-    }
-
+  string id;
+  vector<pair<nodo *, float>> listaConexos;
+  nodo() { id = ""; }
+  nodo(string id_) { id = id_; }
+  void delet() { id = ""; }
 };
 
-void makeConnection(vector<vector<nodo*>>& matriz,int inicio, int fin){
-    for(int i = inicio; i<fin;i++){
-        for(int j=0;j<20;j++){
-            if(j<19)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j+1],10.0));
-            if(j>0)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j-1],10.0));
-            if(i>0)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j],10.0));
-            if(i<19)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j],10.0));
-            if(j<19 && i< 19)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j+1],14.14));
-            if(i>0 && j<19)
-                    matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j+1],14.14));
-            if(j>0 && i> 0)
-                matriz[i][j]->listaConexos.push_back(make_pair(matriz[i-1][j-1],14.14));
-            if(j>0 && i<19)
-                    matriz[i][j]->listaConexos.push_back(make_pair(matriz[i+1][j-1],14.14));
-
-
-        }
+void makeConnection(vector<vector<nodo *>> &matriz, int inicio, int fin) {
+  for (int i = inicio; i < fin; i++) {
+    for (int j = 0; j < 20; j++) {
+      if (j < 19)
+        matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j + 1], 10.0));
+      if (j > 0)
+        matriz[i][j]->listaConexos.push_back(make_pair(matriz[i][j - 1], 10.0));
+      if (i > 0)
+        matriz[i][j]->listaConexos.push_back(make_pair(matriz[i - 1][j], 10.0));
+      if (i < 19)
+        matriz[i][j]->listaConexos.push_back(make_pair(matriz[i + 1][j], 10.0));
+      if (j < 19 && i < 19)
+        matriz[i][j]->listaConexos.push_back(
+            make_pair(matriz[i + 1][j + 1], 14.14));
+      if (i > 0 && j < 19)
+        matriz[i][j]->listaConexos.push_back(
+            make_pair(matriz[i - 1][j + 1], 14.14));
+      if (j > 0 && i > 0)
+        matriz[i][j]->listaConexos.push_back(
+            make_pair(matriz[i - 1][j - 1], 14.14));
+      if (j > 0 && i < 19)
+        matriz[i][j]->listaConexos.push_back(
+            make_pair(matriz[i + 1][j - 1], 14.14));
     }
+  }
 }
 
-vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo, int cantidad) {
+vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo,
+                                           int cantidad) {
 
-    if (cantidad > maximo - minimo + 1) {
-        cout << "Error: Cantidad de numeros a generar excede el rango posible.\n";
-        return {};
-    }
+  if (cantidad > maximo - minimo + 1) {
+    cout << "Error: Cantidad de numeros a generar excede el rango posible.\n";
+    return {};
+  }
 
-    mt19937 generador(time(0));
+  mt19937 generador(time(0));
 
-    vector<int> numeros;
+  vector<int> numeros;
 
-    for (int i = minimo; i <= maximo; ++i) {
-        numeros.push_back(i);
-    }
+  for (int i = minimo; i <= maximo; ++i) {
+    numeros.push_back(i);
+  }
 
-    shuffle(numeros.begin(), numeros.end(), generador);
+  shuffle(numeros.begin(), numeros.end(), generador);
 
-    numeros.resize(cantidad);
+  numeros.resize(cantidad);
 
-    return numeros;
+  return numeros;
 }
 
-void borrar(vector<vector<nodo*>> &mt) {
-    vector<int> num;
-    int porcentaje, profe =50;
-   // cin >> profe;
-    porcentaje = profe * 4;
-    num = generarNumerosAleatoriosUnicos(0, 399, porcentaje);
-    
-    for (int i = 0; i < num.size(); i++) {
-        //cout << num[i] << " ";
-        (*(mt[num[i] / 20][num[i] % 20])).delet();
-    }
+void borrar(vector<vector<nodo *>> &mt) {
+  vector<int> num;
+  int porcentaje, profe = 60;
+  // cin >> profe;
+  porcentaje = profe * 4;
+  num = generarNumerosAleatoriosUnicos(0, 399, porcentaje);
 
+  for (int i = 0; i < num.size(); i++) {
+    // cout << num[i] << " ";
+    (*(mt[num[i] / 20][num[i] % 20])).delet();
+  }
+
+  cout << endl;
+}
+// 0 21 22 23 43 44 64 65 84
+void copiarSet(queue<string> primero, queue<string> &segundo){
+  while(!primero.empty()){
+    segundo.push(primero.front());
+    primero.pop();
+  }
+  cout << endl;
+}
+
+void imprimir(queue<string> cola){
+  while(!cola.empty()){
+    cout << cola.front() << " ";
+    cola.pop();
+  }
+  cout << endl;
+}
+
+bool Existe(queue<string> cola, string valor){
+  while (!cola.empty()) {
+    if (cola.front() == valor) {
+        return true;
+    }
+    cola.pop();
+  }
+  return false;
+}
+
+void Profundidad(vector<vector<nodo *>> mt, int ini, int fin) {
+  stack<pair<nodo *, queue<string>>> pila1, pila2;
+  queue<string> visitados;
+  nodo * inicio = mt[ini/20][ini%20];
+  visitados.push(inicio->id);
+  pila2.push(make_pair(inicio, visitados));
+  while(!(pila2.empty()) && !(Existe(pila2.top().second,mt[fin/20][fin%20]->id))){
+    pila1.push(pila2.top());
+    pila2.pop();
+    cout << "lista" << endl;
+    for(int i = pila1.top().first->listaConexos.size()-1; i > -1;i--){
+      nodo * actualNodo = pila1.top().first->listaConexos[i].first;
+      string value = actualNodo->id;
+      if(value == "" || Existe(pila1.top().second,value)) continue;
+      cout << value << endl;
+      queue<string> visitados2;
+      copiarSet(pila1.top().second, visitados2);
+      visitados2.push(value);
+      imprimir(visitados2);
+      pila2.push(make_pair(actualNodo, visitados2));
+    }
+  }
+  queue<string> camino = pila2.top().second;
+  imprimir(camino);
+}
+
+int main() {
+  vector<vector<nodo *>> mt(20, vector<nodo *>(20));
+  int j = 0;
+  for (int i = 0; i < 20; i++) {
+    for (int k = 0; k < 20; k++) {
+      mt[i][k] = new nodo(to_string(j));
+      j++;
+    }
+  }
+  for (int i = 0; i < 20; i++) {
+    for (int k = 0; k < 20; k++) {
+      cout << (*(mt[i][k])).id << " ";
+    }
     cout << endl;
+  }
+  // makeConnection(mt,0,20);
+  thread T1(makeConnection, ref(mt), 0, 5);
+  thread T2(makeConnection, ref(mt), 5, 10);
+  thread T3(makeConnection, ref(mt), 10, 15);
+  thread T4(makeConnection, ref(mt), 15, 20);
+  T1.join();
+  T2.join();
+  T3.join();
+  T4.join();
+  borrar(mt);
+  for (int i = 0; i < 20; i++) {
+    for (int k = 0; k < 20; k++) {
+      cout << (*(mt[i][k])).id << " ";
+    }
+    cout << endl;
+  }
+  // freopen("input.txt", "r", stdin);
+  int inicio, fin;
+  cin >> inicio >> fin;
+  Profundidad(mt, inicio, fin);
+  return 0;
 }
-
-/*void conectar(vector<vector<nodo*>>& mt) {
-    //laterales
-    (*(mt[10][10])).lista.push_back(mt[10][11]);
-    (*(mt[10][10])).lista.push_back(mt[10][9]);
-    //sup e infe
-    (*(mt[10][10])).lista.push_back(mt[9][10]);
-    (*(mt[10][10])).lista.push_back(mt[11][10]);
-    //diago sup
-    (*(mt[10][10])).lista.push_back(mt[9][9]);
-    (*(mt[10][10])).lista.push_back(mt[9][11]);
-    //diago inf
-    (*(mt[10][10])).lista.push_back(mt[11][9]);
-    (*(mt[10][10])).lista.push_back(mt[11][11]);
-    for (int i;; i++) {
-
-    }
-}*/
-
-int main(){
-    vector<vector<nodo*>> mt(20, vector<nodo*>(20));
-    int j = 0;
-    for (int i = 0;i<20; i++) {
-        for (int k = 0;k<20; k++) {
-            mt[i][k] = new nodo(to_string(j));
-            j++;
-        }
-    }
-    for (int i = 0; i < 20; i++) {
-        for (int k = 0; k < 20; k++) {
-            cout << (*(mt[i][k])).id << " ";
-        }
-        cout << endl;
-    }
-    //makeConnection(mt,0,20);
-    thread T1(makeConnection, ref(mt), 0, 5);
-    thread T2(makeConnection, ref(mt), 5, 10);
-    thread T3(makeConnection, ref(mt), 10, 15);
-    thread T4(makeConnection, ref(mt), 15, 20);
-    T1.join();
-    T2.join();
-    T3.join();
-    T4.join();
-    borrar(mt);
-    for (int i = 0; i < 20; i++) {
-        for (int k = 0; k < 20; k++) {
-            cout << (*(mt[i][k])).id << " ";
-        }
-        cout << endl;
-    }
-    return 0;
-}
-
