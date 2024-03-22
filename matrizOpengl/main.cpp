@@ -78,19 +78,17 @@ void borrar(vector<vector<nodo *>> &mt) {
   num = generarNumerosAleatoriosUnicos(0, 399, porcentaje);
 
   for (int i = 0; i < num.size(); i++) {
-    // cout << num[i] << " ";
     (*(mt[num[i] / 20][num[i] % 20])).delet();
   }
 
   cout << endl;
 }
-// 0 21 22 23 43 44 64 65 84
+
 void copiarSet(queue<string> primero, queue<string> &segundo){
   while(!primero.empty()){
     segundo.push(primero.front());
     primero.pop();
   }
-  cout << endl;
 }
 
 void imprimir(queue<string> cola){
@@ -120,20 +118,50 @@ void Profundidad(vector<vector<nodo *>> mt, int ini, int fin) {
   while(!(pila2.empty()) && !(Existe(pila2.top().second,mt[fin/20][fin%20]->id))){
     pila1.push(pila2.top());
     pila2.pop();
-    cout << "lista" << endl;
     for(int i = pila1.top().first->listaConexos.size()-1; i > -1;i--){
       nodo * actualNodo = pila1.top().first->listaConexos[i].first;
       string value = actualNodo->id;
       if(value == "" || Existe(pila1.top().second,value)) continue;
-      cout << value << endl;
       queue<string> visitados2;
       copiarSet(pila1.top().second, visitados2);
       visitados2.push(value);
-      imprimir(visitados2);
       pila2.push(make_pair(actualNodo, visitados2));
     }
   }
+  if(pila2.empty()){
+    cout << "No hay camino" << endl;
+    return;
+  }
   queue<string> camino = pila2.top().second;
+  cout << "Profundidad: ";
+  imprimir(camino);
+}
+
+void Amplitud(vector<vector<nodo *>> mt, int ini, int fin) {
+  queue<pair<nodo *, queue<string>>> cola;
+  queue<string> visitados;
+  nodo * inicio = mt[ini/20][ini%20];
+  visitados.push(inicio->id);
+  cola.push(make_pair(inicio, visitados));
+  while(!cola.empty() && !(Existe(cola.front().second,mt[fin/20][fin%20]->id))){
+    pair<nodo *, queue<string>> revisar = cola.front();
+    cola.pop();
+    for(int i = revisar.first->listaConexos.size()-1; i > -1; i--){
+      nodo * actualNodo = revisar.first->listaConexos[i].first;
+      string value = actualNodo->id;
+      if(value == "" || Existe(revisar.second,value)) continue;
+      queue<string> visitados2;
+      copiarSet(revisar.second, visitados2);
+      visitados2.push(value);
+      cola.push(make_pair(actualNodo, visitados2));
+    }
+  }
+  if(cola.empty()){
+    cout << "No hay camino" << endl;
+    return;
+  }
+  queue<string> camino = cola.front().second;
+  cout << "Amplitud: ";
   imprimir(camino);
 }
 
@@ -168,9 +196,10 @@ int main() {
     }
     cout << endl;
   }
-  // freopen("input.txt", "r", stdin);
+  freopen("input.txt", "r", stdin);
   int inicio, fin;
   cin >> inicio >> fin;
   Profundidad(mt, inicio, fin);
+  Amplitud(mt, inicio, fin);
   return 0;
 }
