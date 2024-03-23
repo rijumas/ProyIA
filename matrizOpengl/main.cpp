@@ -9,10 +9,28 @@
 #include <queue>
 #include <utility>
 #include <vector>
+#include <map>
 
 using namespace std;
 
 struct nodo {
+    string id;
+    vector<pair<nodo*,float>> listaConexos;
+    map <string,bool> recorrido;
+    vector<float>coordenadas;
+    nodo() {
+        id = "";
+    }
+    nodo(string id_, float x, float y, float z = 0) {
+        id = id_;
+        coordenadas.push_back(x);
+        coordenadas.push_back(y);
+        coordenadas.push_back(z);
+    }
+    void delet() {
+        id = "";
+    }
+
   string id;
   vector<pair<nodo *, float>> listaConexos;
   nodo() { id = ""; }
@@ -168,11 +186,11 @@ void Amplitud(vector<vector<nodo *>> mt, int ini, int fin) {
 int main() {
   vector<vector<nodo *>> mt(20, vector<nodo *>(20));
   int j = 0;
-  for (int i = 0; i < 20; i++) {
-    for (int k = 0; k < 20; k++) {
-      mt[i][k] = new nodo(to_string(j));
-      j++;
-    }
+  for (int i = 0;i<20; i++) {
+        for (int k = 0;k<20; k++) {
+            mt[i][k] = new nodo(to_string(j),-0.9+(1.8/19)*k,0.9-(1.8/19)*i);
+            j++;
+        }
   }
   for (int i = 0; i < 20; i++) {
     for (int k = 0; k < 20; k++) {
@@ -203,3 +221,4 @@ int main() {
   Amplitud(mt, inicio, fin);
   return 0;
 }
+
