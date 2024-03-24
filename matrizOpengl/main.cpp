@@ -1,13 +1,18 @@
+#include <algorithm>
+#include <ctime>
+#include <fstream>
 #include <iostream>
-#include <vector>
-#include <string>
 #include <random>
+#include <string>
 #include <ctime>
 #include <cmath>
 #include <utility>
 #include <thread>
 #include <map>
 #include <algorithm>
+#include <stack>
+#include <queue>
+#include <vector>
 
 using namespace std;
 
@@ -17,15 +22,20 @@ struct nodo {
     map <string, bool> recorrido;
     double dist_euc;
     vector<nodo*> rflags;
+    vector<float>coordenadas;
     nodo() {
         id = "";
     }
-    nodo(string id_) {
+    nodo(string id_, float x, float y, float z = 0) {
         id = id_;
+        coordenadas.push_back(x);
+        coordenadas.push_back(y);
+        coordenadas.push_back(z);
     }
     void delet() {
         id = "";
     }
+    nodo(string id_) { id = id_; }
 };
 
 void makeConnection(vector<vector<nodo*>>& matriz, int inicio, int fin) {
@@ -51,8 +61,8 @@ void makeConnection(vector<vector<nodo*>>& matriz, int inicio, int fin) {
     }
 }
 
-
-vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo, int cantidad) {
+vector<int> generarNumerosAleatoriosUnicos(int minimo, int maximo,
+    int cantidad) {
 
     if (cantidad > maximo - minimo + 1) {
         cout << "Error: Cantidad de numeros a generar excede el rango posible.\n";
@@ -109,7 +119,7 @@ void hill(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
     bool S = 1;
     while (camino[camino.size() - 1]->id != to_string(fin) && S == 1) {
         nodo* minNode = camino.back();
-        sort(camino.back()->listaConexos.begin(), camino.back()->listaConexos.end(),compararPorDistEuc);
+        sort(camino.back()->listaConexos.begin(), camino.back()->listaConexos.end(), compararPorDistEuc);
         for (int i = 0; i < camino[camino.size() - 1]->listaConexos.size(); i++) {
             bool f = 1;
             if (camino.back()->listaConexos[i].first->id != "" /* && camino.back()->listaConexos[i].first->dist_euc > minNode->dist_euc*/) {
@@ -135,7 +145,7 @@ void hill(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
         }
         bool p = 1;
         for (int i = 0; i < camino.size(); i++) {
-            if (minNode->id == camino[i]->id) { 
+            if (minNode->id == camino[i]->id) {
                 camino.back()->rflags.push_back(minNode);
                 p = 0;
                 break;
@@ -164,17 +174,95 @@ void borrar(vector<vector<nodo*>>& mt) {
         //cout << num[i] << " ";
         (*(mt[num[i] / 20][num[i] % 20])).delet();
     }
+}
 
+void copiarSet(queue<string> primero, queue<string>& segundo) {
+    while (!primero.empty()) {
+        segundo.push(primero.front());
+        primero.pop();
+    }
+}
+
+void imprimir(queue<string> cola) {
+    while (!cola.empty()) {
+        cout << cola.front() << " ";
+        cola.pop();
+    }
     cout << endl;
 }
 
+bool Existe(queue<string> cola, string valor) {
+    while (!cola.empty()) {
+        if (cola.front() == valor) {
+            return true;
+        }
+        cola.pop();
+    }
+    return false;
+}
+
+void Profundidad(vector<vector<nodo*>> mt, int ini, int fin) {
+    stack<pair<nodo*, queue<string>>> pila1, pila2;
+    queue<string> visitados;
+    nodo* inicio = mt[ini / 20][ini % 20];
+    visitados.push(inicio->id);
+    pila2.push(make_pair(inicio, visitados));
+    while (!(pila2.empty()) && !(Existe(pila2.top().second, mt[fin / 20][fin % 20]->id))) {
+        pila1.push(pila2.top());
+        pila2.pop();
+        for (int i = pila1.top().first->listaConexos.size() - 1; i > -1; i--) {
+            nodo* actualNodo = pila1.top().first->listaConexos[i].first;
+            string value = actualNodo->id;
+            if (value == "" || Existe(pila1.top().second, value)) continue;
+            queue<string> visitados2;
+            copiarSet(pila1.top().second, visitados2);
+            visitados2.push(value);
+            pila2.push(make_pair(actualNodo, visitados2));
+        }
+    }
+    if (pila2.empty()) {
+        cout << "No hay camino" << endl;
+        return;
+    }
+    queue<string> camino = pila2.top().second;
+    cout << "Profundidad: ";
+    imprimir(camino);
+}
+
+void Amplitud(vector<vector<nodo*>> mt, int ini, int fin) {
+    queue<pair<nodo*, queue<string>>> cola;
+    queue<string> visitados;
+    nodo* inicio = mt[ini / 20][ini % 20];
+    visitados.push(inicio->id);
+    cola.push(make_pair(inicio, visitados));
+    while (!cola.empty() && !(Existe(cola.front().second, mt[fin / 20][fin % 20]->id))) {
+        pair<nodo*, queue<string>> revisar = cola.front();
+        cola.pop();
+        for (int i = revisar.first->listaConexos.size() - 1; i > -1; i--) {
+            nodo* actualNodo = revisar.first->listaConexos[i].first;
+            string value = actualNodo->id;
+            if (value == "" || Existe(revisar.second, value)) continue;
+            queue<string> visitados2;
+            copiarSet(revisar.second, visitados2);
+            visitados2.push(value);
+            cola.push(make_pair(actualNodo, visitados2));
+        }
+    }
+    if (cola.empty()) {
+        cout << "No hay camino" << endl;
+        return;
+    }
+    queue<string> camino = cola.front().second;
+    cout << "Amplitud: ";
+    imprimir(camino);
+}
 
 int main() {
     vector<vector<nodo*>> mt(20, vector<nodo*>(20));
     int j = 0;
     for (int i = 0; i < 20; i++) {
         for (int k = 0; k < 20; k++) {
-            mt[i][k] = new nodo(to_string(j));
+            mt[i][k] = new nodo(to_string(j), -0.9 + (1.8 / 19) * k, 0.9 - (1.8 / 19) * i);
             j++;
         }
     }
@@ -219,6 +307,12 @@ int main() {
             cout << camino[o]->id << " ";
         }
     }
+    cout << endl;
+    //freopen("input.txt", "r", stdin);
+    int inicio;
+    cin >> inicio >> fin;
+    Profundidad(mt, inicio, fin);
+    Amplitud(mt, inicio, fin);
     return 0;
 }
 
