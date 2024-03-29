@@ -160,13 +160,13 @@ void hill(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
 
 void calcuCost(nodo*& node) {
     int id = stoi(node->id);
-    for (int i=0; i<node->listaConexos.size(); i++) {
+    for (int i = 0; i < node->listaConexos.size(); i++) {
         if (node->listaConexos[i].first->id != "") {
             node->listaCosto.push_back(node->listaConexos[i].first);
             if (stoi(node->listaConexos[i].first->id) == (id - 21) || stoi(node->listaConexos[i].first->id) == (id - 19) || stoi(node->listaConexos[i].first->id) == (id + 21) || stoi(node->listaConexos[i].first->id) == (id + 19))
                 node->listaConexos[i].first->costo = node->listaConexos[i].first->dist_euc + 14.14;
             else
-                node->listaConexos[i].first->costo = node->listaConexos[i].first->dist_euc + 10; 
+                node->listaConexos[i].first->costo = node->listaConexos[i].first->dist_euc + 10;
         }
     }
 }
@@ -308,6 +308,14 @@ void Amplitud(vector<vector<nodo*>> mt, int ini, int fin) {
     imprimir(camino);
 }
 
+void purificador(vector<vector<nodo*>> &mt) {
+    for (int i = 0; i < 20; i++) {
+        for (int k = 0; k < 20; k++) {
+            mt[i][k]->rflags.clear();
+        }
+    }
+}
+
 int main() {
     vector<vector<nodo*>> mt(20, vector<nodo*>(20));
     int j = 0;
@@ -360,8 +368,9 @@ int main() {
     }
     cout << endl;
     //freopen("input.txt", "r", stdin);
-    
+
     camino.clear();
+    purificador(mt);
     aAst(mt, ini, fin, camino);
     if (camino.size() == 1 && camino.back()->id != to_string(fin)) {
         cout << "No hay camino" << endl;
