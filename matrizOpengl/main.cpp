@@ -122,7 +122,7 @@ void hill(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
         return;
     }
     bool S = 1;
-    while (camino[camino.size() - 1]->id != to_string(fin) && S == 1) {
+    while (!camino.empty() && camino[camino.size() - 1]->id != to_string(fin) && S == 1) {
         nodo* minNode = camino.back();
         sort(camino.back()->listaConexos.begin(), camino.back()->listaConexos.end(), compararPorDistEuc);
         for (int i = 0; i < camino[camino.size() - 1]->listaConexos.size(); i++) {
@@ -151,7 +151,9 @@ void hill(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
         }
         else {
             camino.pop_back();
-            camino.back()->rflags.push_back(minNode);
+            if (!camino.empty()) {
+                camino.back()->rflags.push_back(minNode);
+            }
         }
         detect_fin(start, fin, camino, S);
     }
@@ -178,7 +180,7 @@ void aAst(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
         return;
     }
     bool S = 1;
-    while (camino[camino.size() - 1]->id != to_string(fin) && S == 1) {
+    while (!camino.empty() && camino[camino.size() - 1]->id != to_string(fin) && S == 1) {
         nodo* minNode = camino.back();
         calcuCost(minNode);
         sort(camino.back()->listaCosto.begin(), camino.back()->listaCosto.end(), compararPorDistCost);
@@ -208,7 +210,9 @@ void aAst(vector<vector<nodo*>>& mt, int ini, int fin, vector<nodo*>& camino) {
         }
         else {
             camino.pop_back();
-            camino.back()->rflags.push_back(minNode);
+            if (!camino.empty()) {
+                camino.back()->rflags.push_back(minNode);
+            }
         }
         detect_fin(start, fin, camino, S);
     }
@@ -358,7 +362,7 @@ int main() {
     cout << (*(mt[ini / 20][ini % 20])).dist_euc << endl;
     vector<nodo*> camino;
     hill(mt, ini, fin, camino);
-    if (camino.size() == 1 && camino.back()->id != to_string(fin)) {
+    if (camino.empty() || (camino.size() == 1 && camino.back()->id != to_string(fin))) {
         cout << "No hay camino" << endl;
     }
     else {
@@ -372,7 +376,7 @@ int main() {
     camino.clear();
     purificador(mt);
     aAst(mt, ini, fin, camino);
-    if (camino.size() == 1 && camino.back()->id != to_string(fin)) {
+    if (camino.empty() || (camino.size() == 1 && camino.back()->id != to_string(fin))) {
         cout << "No hay camino" << endl;
     }
     else {
